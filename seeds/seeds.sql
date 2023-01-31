@@ -1,5 +1,5 @@
 -- Seed depertments table
-INSERT INTO departments (name_)
+INSERT INTO departments (name)
 VALUES ("Engineering"),
        ("Finance"),
        ("Legal"),
