@@ -1,30 +1,31 @@
-const connection = require("./config/connection.js");
+const selectQuery = require("./helpers/sql_queries");
+const inquirer = require("inquirer");
 
-connection.query(
-    'SELECT id, name FROM departments',
-    function(err, results, fields) {
-        console.table(results);
+const recursiveList = [
+    {
+        type: "list",
+        name: "queryList",
+        message: "What would you like to do?",
+        choices: [
+            'View All Departments',
+            'View All Roles',
+            'View All Employees',
+            new inquirer.Separator(),
+            'exit'
+        ]
     }
-);
+];
 
-connection.query(
-    'SELECT roles.id, roles.title, departments.name AS departments, roles.salary FROM roles JOIN departments ON roles.department_id = departments.id',
-    function(err, results, fields) {
-        console.table(results);
-    }
-);
+const ask = () => {
+    inquirer.prompt(recursiveList).then((answers) => {
+        if (answers.queryList === 'exit') {
+            //exit
+            process.exit();
+        } else {
+            selectQuery(answers.queryList);
+            ask();
+        }
+    });
+}
 
-connection.query(
-    `SELECT T1.id, T1.first_name, T1.last_name, roles.title, departments.name AS departments, roles.salary, CONCAT(T2.first_name, ' ', T2.last_name) AS manager 
-    FROM employees AS T1
-    LEFT JOIN employees AS T2
-    ON T1.manager_id = T2.id
-    JOIN roles 
-    ON T1.role_id = roles.id
-    JOIN departments 
-    ON roles.department_id = departments.id
-    ORDER BY T1.id`, 
-    function(err, results, fields) {
-        console.table(results);
-    }
-);
+ask();
